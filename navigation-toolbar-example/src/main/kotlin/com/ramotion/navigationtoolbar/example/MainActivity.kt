@@ -7,6 +7,7 @@ import android.support.design.widget.Snackbar
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.graphics.drawable.DrawerArrowDrawable
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.FrameLayout
@@ -18,6 +19,7 @@ import com.ramotion.navigationtoolbar.example.header.HeaderAdapter
 import com.ramotion.navigationtoolbar.example.header.HeaderItemTransformer
 import com.ramotion.navigationtoolbar.example.pager.ViewPagerAdapter
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
 
@@ -74,8 +76,25 @@ class MainActivity : AppCompatActivity() {
         viewPager = findViewById(R.id.pager)
         viewPager.adapter = ViewPagerAdapter(itemCount, dataSet.viewPagerDataSet)
         viewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
-            override fun onPageSelected(position: Int) {
-                header.smoothScrollToPosition(position)
+            private var lastPositionAndOffsetSum = 0f
+            private var lastOffsetPixels = 0
+
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+                val offset = run { positionOffsetPixels - lastOffsetPixels }
+                        .let {
+                            val absOffset = abs(it)
+                            val absLop = abs(lastOffsetPixels)
+                            val absPop = abs(positionOffsetPixels)
+                            if (absOffset == absLop || absOffset == absPop) {
+                                if (absOffset < viewPager.width / 2) absOffset else absOffset - viewPager.width
+                            } else it }
+
+                if (offset != 0) {
+                    header.scroll(offset)
+                }
+
+                lastPositionAndOffsetSum = position + positionOffset
+                lastOffsetPixels = positionOffsetPixels
             }
         })
     }

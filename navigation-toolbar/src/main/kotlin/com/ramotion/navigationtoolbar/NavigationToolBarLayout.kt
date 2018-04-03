@@ -89,6 +89,8 @@ class NavigationToolBarLayout : CoordinatorLayout {
 
     fun setAdapter(adapter: HeaderLayout.Adapter<out HeaderLayout.ViewHolder>) = headerLayout.setAdapter(adapter)
 
+    fun scroll(distance: Int) = layoutManager.scroll(distance)
+
     fun scrollToPosition(pos: Int) = layoutManager.scrollToPosition(pos)
 
     fun smoothScrollToPosition(pos: Int) = layoutManager.smoothScrollToPosition(pos)

@@ -381,7 +381,16 @@ class HeaderLayoutManager(context: Context, attrs: AttributeSet?)
         }
     }
 
-    // TODO: fun scroll(distance)
+    fun scroll(distance: Int): Boolean {
+        return headerLayout
+                ?.let { it to getOrientation() }
+                ?.let { (header, orientation) -> when (orientation) {
+                    Orientation.TRANSITIONAL -> false
+                    Orientation.HORIZONTAL -> onHeaderHorizontalScroll(header, distance.toFloat())
+                    Orientation.VERTICAL -> onHeaderVerticalScroll(header, distance.toFloat())
+                }}
+                ?: false
+    }
 
     fun scrollToPosition(pos: Int) {
         scrollToPosition(pos, { header, _, offset, horizontal ->
@@ -803,6 +812,8 @@ class HeaderLayoutManager(context: Context, attrs: AttributeSet?)
             curOrientation ?: getOrientation(getRatio, true)
         }
     }
+
+    private fun getOrientation(force: Boolean = false) = getOrientation(::getPositionRatio, force)
 
     private fun fillLeft(header: HeaderLayout, anchorPos: Int) {
         val (hx, hy) = hPoint ?: return
