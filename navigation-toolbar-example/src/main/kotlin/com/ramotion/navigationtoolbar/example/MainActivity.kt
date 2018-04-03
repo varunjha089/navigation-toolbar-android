@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewPager: ViewPager
     private lateinit var header: NavigationToolBarLayout
 
+    private var selectedByHeader = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -79,7 +81,17 @@ class MainActivity : AppCompatActivity() {
             private var lastPositionAndOffsetSum = 0f
             private var lastOffsetPixels = 0
 
+            override fun onPageScrollStateChanged(state: Int) {
+                if (state == ViewPager.SCROLL_STATE_IDLE) {
+                    selectedByHeader = false
+                }
+            }
+
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+                if (selectedByHeader) {
+                    return
+                }
+
                 val offset = run { positionOffsetPixels - lastOffsetPixels }
                         .let {
                             val absOffset = abs(it)
@@ -121,13 +133,23 @@ class MainActivity : AppCompatActivity() {
 
         header.addItemChangeListener(object : HeaderLayoutManager.ItemChangeListener {
             override fun onItemChanged(position: Int) {
+                selectedByHeader = true
                 viewPager.currentItem = position
             }
         })
 
         header.addItemClickListener(object : HeaderLayoutManager.ItemClickListener {
             override fun onItemClicked(viewHolder: HeaderLayout.ViewHolder) {
+                selectedByHeader = true
                 viewPager.currentItem = viewHolder.position
+            }
+        })
+
+        header.addScrollStateListener(object : HeaderLayoutManager.ScrollStateListener{
+            override fun onScrollStateChanged(state: HeaderLayoutManager.ScrollState) {
+                if (state == HeaderLayoutManager.ScrollState.IDLE) {
+                    selectedByHeader = false
+                }
             }
         })
 
